@@ -91,7 +91,9 @@ class Player(object):
         counter = 0
         p_count = 0
 
-        
+        latinLatinLatin = carpeDiem(self.patients, self.hospitals, self.ambulances, 100, 100)
+        latinLatinLatin.evolve()
+        latinLatinLatin.writeDictionaries()        
         
         total_patients = len(self.patients)
 
