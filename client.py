@@ -91,7 +91,7 @@ class Player(object):
         counter = 0
         p_count = 0
 
-        latinLatinLatin = routePlanner(self.patients, self.hospitals, self.ambulances, 100, 45)
+        latinLatinLatin = routePlanner(self.patients, self.hospitals, self.ambulances, 100, 50)
         latinLatinLatin.evolve()
         latinLatinLatin.writeDictionaries()        
         
