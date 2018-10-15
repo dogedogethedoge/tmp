@@ -288,7 +288,7 @@ class routePlanner():
     def writeDictionaries(self):
         hospitals = {}
         for i, h in enumerate(self.__hospital_array):
-            hospitals[i] = {'xloc':h[0], 'yloc':h[1]}
+            hospitals[i] = {'xloc':int(h[0] - 1), 'yloc':int(h[1] - 1)}
             
         routes, amb = self.__best_chromosome
         
@@ -300,7 +300,7 @@ class routePlanner():
             for e in rng:
                 stop = routes[e]
                 if stop < 0:
-                    route.extend(['h{}'.format(abs(stop))])
+                    route.extend(['h{}'.format(abs(stop) - 1)])
                 else:
                     route.extend(['p{}'.format(stop)])
                     
