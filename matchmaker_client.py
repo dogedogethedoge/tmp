@@ -19,21 +19,27 @@ class MatchMaker(Player):
     def __init__(self, name):
         super(MatchMaker, self).__init__(name=name, is_player=False)
         game_info = json.loads(self.client.receive_data(size=32368*2))
-        print('Matchmaker', game_info)
         self.random_candidates_and_scores = game_info['randomCandidateAndScores']
         self.data = np.array([[v['Score']]+v['Attributes'] for k,v in self.random_candidates_and_scores.items()])
+        print(self.data, "DDDDDDDDDDDDDDDD")
         self.n = game_info['n']
         self.prev_candidate = {'candidate': [], 'score': 0, 'iter': 0}
         self.time_left = 120
         self.con = [{'type':'eq', 'fun':lambda x: x.sum()}]
         self.bounds = [(-1,1) for i in range(self.n)]
+        self.turn  = 0
 
     def play_game(self):
 
         while True:
+            print("************************************************")
             candidate = self.my_candidate()
-            time.sleep(5)
+            print("################################################")
+            print(candidate)
+            print("################################################")
+            time.sleep(10)
             self.client.send_data(json.dumps(candidate))
+            time.sleep(5)
             response = json.loads(self.client.receive_data())
             if 'game_over' in response:
                 if response['match_found']:
@@ -61,14 +67,22 @@ class MatchMaker(Player):
         For this function, you must return an array of values that lie between 0 and 1 inclusive and must have four or
         fewer digits of precision. The length of the array should be equal to the number of attributes (self.n)
         """
-        
-        new_result = np.array([[v['Score']]+v['candidate'] for k,v in self.prev_candidate.items()])
-        self.data = np.vstack((self.data, new_result))
-        X, y= self.data[:,1:], self.data[:,0]
+        if self.turn != 0:
+            new_result = [self.prev_candidate['score']] + self.prev_candidate['candidate'] 
+            self.data = np.vstack((self.data, new_result))
+            X, y= self.data[:,1:], self.data[:,0]
 
-        test_weights = minimize(fun=loss, x0=np.zeros(self.n), args=(X,y), constraints=self.con, bounds=self.bounds).x
+            test_weights = minimize(fun=loss, x0=np.zeros(self.n), args=(X,y), constraints=self.con, bounds=self.bounds).x
 
-        ga = SAT(min_x, 50, 100, 0.95, 0.1)
-        ga.evolve()
+            ga = SAT(min_x, 50, 100, 0.95, 0.1)
+            ga.evolve()
 
-        return ga.best_chrm
+            return ga.best_chrm.tolist()
+        else:
+            X, y= self.data[:,1:], self.data[:,0]
+
+            test_weights = minimize(fun=loss, x0=np.zeros(self.n), args=(X,y), constraints=self.con, bounds=self.bounds).x
+
+            ga = SAT(min_x, 50, 100, 0.95, 0.1)
+            ga.evolve()
+            return ga.best_chrm.tolist()
